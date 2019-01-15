@@ -25,20 +25,26 @@
   - Add `new RNNativeDialogsPackage()` to the list returned by the `getPackages()` method
 2. Append the following lines to `android/settings.gradle`:
   	```
-  	include ':react-native-native-dialogs'
-  	project(':react-native-native-dialogs').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-native-dialogs/android')
-  	```
+    	include ':react-native-native-dialogs'
+    	project(':react-native-native-dialogs').projectDir = new File(rootProject.projectDir, 	'../node_modules/react-native-native-dialogs/android')
+  ```
 3. Insert the following lines inside the dependencies block in `android/app/build.gradle`:
   	```
       compile project(':react-native-native-dialogs')
-  	```
+  ```
 
+## References
 
-## Usage
+1. [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/ios/overview/themes/)
+2. [React Native Doc](https://facebook.github.io/react-native/docs/alertios)
+3. [Material Design](https://material.io/design/)
+4. [Material Dialogs](https://github.com/afollestad/material-dialogs/tree/03fed5b82196063a983a986128cc64ec98a321f7) by @afollestad, version 0.9.6.0
+5. [react-native-dialogs](https://github.com/aakashns/react-native-dialogs) by @aakashns
+
+## Usage (TODO)
 ```javascript
 import RNNativeDialogs from 'react-native-native-dialogs';
 
 // TODO: What to do with the module?
 RNNativeDialogs;
 ```
-  
