@@ -1,0 +1,35 @@
+{
+  "name": "react-native-native-dialogs",
+  "title": "React Native Native Dialogs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Phecda/react-native-native-dialogs.git",
+    "baseUrl": "https://github.com/Phecda/react-native-native-dialogs"
+  },
+  "keywords": [
+    "react-native"
+  ],
+  "author": {
+    "name": "Phecda",
+    "email": "szp12345141@gmail.com"
+  },
+  "license": "MIT",
+  "licenseFilename": "LICENSE",
+  "readmeFilename": "README.md",
+  "peerDependencies": {
+    
+    "react": "16.2.0",
+    "react-native": "^0.52.0"
+  },
+  "devDependencies": {
+    
+    "react": "16.2.0",
+    "react-native": "^0.52.0"
+  }
+}
