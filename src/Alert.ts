@@ -1,6 +1,7 @@
 import {
   Alert as RNAlert,
   AlertButton,
+  AlertIOS,
   AlertIOSButton,
   AlertOptions,
   AlertStatic,
@@ -10,6 +11,7 @@ import {
   ReturnKeyType,
   ReturnKeyTypeAndroid,
   ReturnKeyTypeIOS,
+  Platform
 } from "react-native";
 const { RNNativeDialogs } = NativeModules;
 
@@ -33,14 +35,20 @@ export interface IImageAlertOptions extends IPlainAlertOptions {
 export interface IPromptOptions extends IAlertBase {
   submitText?: string;
   submitDestructive?: boolean;
+  onSubmit: (text?: string) => void;
   cancelText?: string;
+  onCancel?: (text?: string) => void;
   keyboardType?: KeyboardType;
   returnKeyType?: ReturnKeyType | ReturnKeyTypeIOS | ReturnKeyTypeAndroid;
   type?: AlertType;
+  defaultValue?: string;
 }
 
 class Alert {
-  public static defaultOptions = {};
+  public static defaultOptions = {
+    submitText: "确定",
+    cancelText: "取消"
+  };
 
   public static alertPlain({
     title,
@@ -56,17 +64,57 @@ class Alert {
     title,
     detailText,
     buttons,
-    options
+    options,
+    base64
   }: IImageAlertOptions) {
-   // TODO - implementation
+    // TODO - implementation
   }
 
   public static prompt({
-
-  }) {
-    // TODO 
+    title,
+    detailText,
+    cancelText,
+    onCancel,
+    submitText,
+    submitDestructive,
+    onSubmit,
+    keyboardType,
+    returnKeyType,
+    type,
+    defaultValue
+  }: IPromptOptions) {
+    if (Platform.OS === "ios") {
+      const buttons: AlertIOSButton[] = [];
+      if (submitText) {
+        buttons.push({
+          text: submitText,
+          style: submitDestructive
+            ? "destructive"
+            : cancelText
+            ? "default"
+            : "cancel",
+          onPress: onSubmit
+        });
+      }
+      if (cancelText) {
+        buttons.push({
+          text: cancelText,
+          style: "cancel",
+          onPress: onCancel
+        });
+      }
+      AlertIOS.prompt(
+        title,
+        detailText,
+        buttons,
+        type,
+        defaultValue,
+        keyboardType
+      );
+    } else if (Platform.OS === "android") {
+      // TODO
+    }
   }
-
 }
 
 export default Alert;
