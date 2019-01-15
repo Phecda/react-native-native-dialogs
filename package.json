@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@types/react": "^16.7.18",
-    "@types/react-native": "^0.52.25",
+    "@types/react-native": "^0.57.27",
     "react": "16.2.0",
     "react-native": "^0.52.0",
     "tslint": "^5.12.1",
