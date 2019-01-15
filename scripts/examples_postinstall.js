@@ -97,6 +97,10 @@
     const relativeLibraryNodeModulesPath = process.argv[2];
     const libraryNodeModulesPath = path.resolve(exampleDir, relativeLibraryNodeModulesPath);
 
+    if (fs.lstatSync(libraryNodeModulesPath).isSymbolicLink()) {
+      console.log('Symbolic link detected. End deleting');
+      return;
+    }
 
     removeLibraryNodeModulesPath(libraryNodeModulesPath);
 
