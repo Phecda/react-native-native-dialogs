@@ -3,8 +3,10 @@
   "title": "React Native Native Dialogs",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
+    "prepare": "rm -rf dist && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,7 +29,12 @@
     "react-native": "^0.52.0"
   },
   "devDependencies": {
+    "@types/react": "^16.7.18",
+    "@types/react-native": "^0.52.25",
     "react": "16.2.0",
-    "react-native": "^0.52.0"
+    "react-native": "^0.52.0",
+    "tslint": "^5.12.1",
+    "tslint-config-prettier": "^1.17.0",
+    "typescript": "^3.2.2"
   }
 }
