@@ -7,7 +7,8 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Platform, StyleSheet, Text, View, SafeAreaView, FlatList, TouchableOpacity} from 'react-native';
+import {List} from 'react-native-native-dialogs'
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -20,11 +21,21 @@ type Props = {};
 export default class App extends Component<Props> {
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
-      </View>
+      <FlatList
+        data={[{
+          title: 'ActionSheet',
+          onPress: () => {
+            List.showActionSheet({title: '选择', options: ['Google', 'Apple', 'Microsoft'], onSelect: ({label, index})=>{
+              console.log(label, index);
+            }})
+          }
+        }]}
+        renderItem={({item})=>{
+          return <TouchableOpacity onPress={item.onPress} style={{padding: 16}}>
+            <Text>{item.title}</Text>
+          </TouchableOpacity>
+        }}
+      />
     );
   }
 }

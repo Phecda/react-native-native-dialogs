@@ -1,4 +1,7 @@
-import { NativeModules } from 'react-native';
-const { RNNativeDialogs } = NativeModules;
+import List from "./List";
+import Alert from "./Alert";
 
-export default RNNativeDialogs;
+export default {
+  List,
+  Alert,
+}
