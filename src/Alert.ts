@@ -13,7 +13,7 @@ import {
   ReturnKeyTypeIOS,
   Platform
 } from "react-native";
-const { RNNativeDialogs } = NativeModules;
+const { RNNativeDialogs, NDAlertManager } = NativeModules;
 
 export type Nullable<T> = T | null;
 
@@ -68,6 +68,39 @@ class Alert {
     base64
   }: IImageAlertOptions) {
     // TODO - implementation
+    if (Platform.OS === "ios") {
+      if (NDAlertManager) {
+        const callbacks = [];
+        let cancelButtonKey;
+        let destructiveButtonKey;
+        if (buttons) {
+          buttons.forEach((btn, index) => {
+            callbacks[index] = btn.onPress;
+            if (btn.style === "cancel") {
+              cancelButtonKey = String(index);
+            } else if (btn.style === "destructive") {
+              destructiveButtonKey = String(index);
+            }
+            if (btn.text || index < (buttons || []).length - 1) {
+              const btnDef: any = {};
+              btnDef[index] = btn.text || "";
+              buttons.push(btnDef);
+            }
+          });
+        }
+
+        NDAlertManager.alertWithArgs({
+          title: title || "",
+          message:  detailText|| undefined,
+          buttons,
+          base64: base64,
+          cancelButtonKey,
+          destructiveButtonKey
+        }, (text: string) =>{
+          console.log(text)
+        });
+      }
+    }
   }
 
   public static prompt({
@@ -106,7 +139,7 @@ class Alert {
       AlertIOS.prompt(
         title,
         detailText,
-        buttons.length ? buttons: onSubmit,
+        buttons.length ? buttons : onSubmit,
         type,
         defaultValue,
         keyboardType
