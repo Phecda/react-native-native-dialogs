@@ -9,9 +9,8 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, SafeAreaView, FlatList} from 'react-native';
+import {Platform, StyleSheet, Text, View, SafeAreaView, FlatList, TouchableOpacity} from 'react-native';
 import ND from 'react-native-native-dialogs';
-import { TouchableOpacity } from 'react-native';
 const {List} = ND
 
 const instructions = Platform.select({
@@ -34,7 +33,7 @@ export default class App extends Component<Props> {
                 options: ['Microsoft', 'Apple', 'Google'],
                 onSelect: ({label, index})=>{
                   console.log(label, index);
-                }
+                },
               })
             }
           }]}

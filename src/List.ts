@@ -10,6 +10,7 @@ interface IActionSheetOptions {
   onCancel?: () => void;
   /**
    * `null` is preferred on Android, @see https://material.io/design/components/dialogs.html#simple-dialog
+   * `null` or `undefined` will make it uncancelable on iOS
    */
   cancelText?: string | null;
   destructiveIndex?: number;
