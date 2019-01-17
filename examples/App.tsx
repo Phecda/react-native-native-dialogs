@@ -11,14 +11,7 @@
 import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View, SafeAreaView, FlatList, TouchableOpacity} from 'react-native';
 import ND from 'react-native-native-dialogs';
-const {List} = ND
-
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android:
-    'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
+const {List, Alert} = ND
 
 interface Props {}
 export default class App extends Component<Props> {
@@ -34,6 +27,16 @@ export default class App extends Component<Props> {
                 onSelect: ({label, index})=>{
                   console.log(label, index);
                 },
+              })
+            }
+          }, {
+            title: 'Prompt',
+            onPress: () =>{
+              Alert.prompt({
+                title: 'Input something',
+                onSubmit: text=>{
+                  console.log('input: ', text);
+                }
               })
             }
           }]}

@@ -106,7 +106,7 @@ class Alert {
       AlertIOS.prompt(
         title,
         detailText,
-        buttons,
+        buttons.length ? buttons: onSubmit,
         type,
         defaultValue,
         keyboardType
