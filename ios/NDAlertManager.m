@@ -63,6 +63,37 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
     
     
     alertController.message = message;
+
+
+    UIImage* image = [self decodeBase64ToImage:base64];
+    
+    if (image != nil) {
+        CGSize maxSize = CGSizeMake(270 - 24, 204);
+
+        CGSize imageSize = image.size;
+        CGFloat ratio;
+        if (imageSize.width > imageSize.height) {
+            ratio = maxSize.width / imageSize.width;
+        } else {
+            ratio = maxSize.height / imageSize.height;
+        }
+
+        CGSize scaledSize = CGSizeMake(imageSize.width * ratio, imageSize.height * ratio);
+
+        UIImage* resizedImage = [self resizeImage:image ToSize:scaledSize];
+
+    
+        CGFloat left = (maxSize.width - resizedImage.size.width) / 2;
+
+        resizedImage = [resizedImage imageWithAlignmentRectInsets:UIEdgeInsetsMake(0, -left, 0, 0)];
+        
+        
+        UIAlertAction *imageAction = [UIAlertAction actionWithTitle:@"" style:UIAlertActionStyleDefault handler:nil];
+        [imageAction setValue:[resizedImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
+        [imageAction setEnabled:NO];
+
+        [alertController addAction:imageAction];
+    }
     
     for (NSDictionary<NSString *, id> *button in buttons) {
         if (button.count != 1) {
@@ -82,30 +113,6 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
                                                           handler:^(__unused UIAlertAction *action) {
                                                               callback(@[buttonKey]);
                                                           }]];
-    }
-    
-    
-    UIImage* image = [self decodeBase64ToImage:base64];
-    
-    if (image != nil) {
-        CGSize maxSize = CGSizeMake(270, 208);
-        
-        CGSize imageSize = image.size;
-        CGFloat ratio;
-        if (imageSize.width > imageSize.height) {
-            ratio = maxSize.width / imageSize.width;
-        } else {
-            ratio = maxSize.height / imageSize.height;
-        }
-        
-        CGSize scaledSize = CGSizeMake(imageSize.width * ratio, imageSize.height * ratio);
-        
-        UIImage* resizedImage = [self resizeImage:image ToSize:scaledSize];
-        
-        UIAlertAction *imageAction = [UIAlertAction actionWithTitle:@"" style:UIAlertActionStyleDefault handler:nil];
-        [imageAction setValue:[resizedImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-        [imageAction setEnabled:NO];
-        [alertController addAction:imageAction];
     }
     
     if (!_alertControllers) {
@@ -137,8 +144,8 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
     CGFloat aspectRatio = aspectWidth > aspectHeight ? aspectHeight : aspectWidth;
     
     CGRect scaledImageRect = CGRectZero;
-    scaledImageRect.size.width = self.size.width * aspectRatio;
-    scaledImageRect.size.height = self.size.height * aspectRatio;
+    scaledImageRect.size.width = source.size.width * aspectRatio;
+    scaledImageRect.size.height = source.size.height * aspectRatio;
     scaledImageRect.origin.x = (size.width - scaledImageRect.size.width) / 2.0;
     scaledImageRect.origin.y = (size.height - scaledImageRect.size.height) / 2.0;
     

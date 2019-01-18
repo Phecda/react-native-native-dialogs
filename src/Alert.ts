@@ -70,7 +70,8 @@ class Alert {
     // TODO - implementation
     if (Platform.OS === "ios") {
       if (NDAlertManager) {
-        const callbacks = [];
+        const callbacks: any[] = [];
+        const newButtons: any[] = [];
         let cancelButtonKey;
         let destructiveButtonKey;
         if (buttons) {
@@ -84,7 +85,7 @@ class Alert {
             if (btn.text || index < (buttons || []).length - 1) {
               const btnDef: any = {};
               btnDef[index] = btn.text || "";
-              buttons.push(btnDef);
+              newButtons.push(btnDef);
             }
           });
         }
@@ -92,12 +93,13 @@ class Alert {
         NDAlertManager.alertWithArgs({
           title: title || "",
           message:  detailText|| undefined,
-          buttons,
+          buttons: newButtons,
           base64: base64,
           cancelButtonKey,
           destructiveButtonKey
-        }, (text: string) =>{
-          console.log(text)
+        }, (buttonKey: string) =>{
+          const cb = callbacks[Number(buttonKey)];
+          cb && cb();
         });
       }
     }
