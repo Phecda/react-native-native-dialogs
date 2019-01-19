@@ -32,10 +32,13 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
     NSString *title = [RCTConvert NSString:args[@"title"]];
     NSString *message = [RCTConvert NSString:args[@"message"]];
     NSArray<NSDictionary *> *buttons = [RCTConvert NSDictionaryArray:args[@"buttons"]];
-    NSString *defaultValue = [RCTConvert NSString:args[@"defaultValue"]];
     NSString *cancelButtonKey = [RCTConvert NSString:args[@"cancelButtonKey"]];
     NSString *destructiveButtonKey = [RCTConvert NSString:args[@"destructiveButtonKey"]];
-    UIKeyboardType keyboardType = [RCTConvert UIKeyboardType:args[@"keyboardType"]];
+    
+    // TextInput
+    NSArray<NSDictionary *> *textFields = [RCTConvert NSDictionaryArray:args[@"textInputs"]];
+    
+    // Image
     NSString *base64 = [RCTConvert NSString:args[@"base64"]];
     
     if (!title && !message) {
@@ -44,10 +47,16 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
     }
     
     if (buttons.count == 0) {
-        
-        buttons = @[@{@"0": RCTUIKitLocalizedString(@"OK")}];
-        cancelButtonKey = @"0";
-        
+        if (textFields.count == 0) {
+            buttons = @[@{@"0": RCTUIKitLocalizedString(@"OK")}];
+            cancelButtonKey = @"0";
+        } else {
+            buttons = @[
+                        @{@"0": RCTUIKitLocalizedString(@"OK")},
+                        @{@"1": RCTUIKitLocalizedString(@"Cancel")},
+                        ];
+            cancelButtonKey = @"1";
+        }
     }
     
     UIViewController *presentingController = RCTPresentedViewController();
@@ -63,6 +72,15 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
     
     
     alertController.message = message;
+    
+    for (NSDictionary<NSString *, id> *textFieldConfig in textFields) {
+        [alertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+            textField.placeholder = [RCTConvert NSString:textFieldConfig[@"placeholder"]];
+            textField.text = [RCTConvert NSString:textFieldConfig[@"defaultValue"]];
+            textField.keyboardType = [RCTConvert UIKeyboardType:textFieldConfig[@"keyboardType"]];
+            textField.secureTextEntry = [RCTConvert BOOL:textFieldConfig[@"secureTextEntry"]];
+        }];
+    }
 
 
     UIImage* image = [self decodeBase64ToImage:base64];
@@ -111,7 +129,16 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
         [alertController addAction:[UIAlertAction actionWithTitle:buttonTitle
                                                             style:buttonStyle
                                                           handler:^(__unused UIAlertAction *action) {
-                                                              callback(@[buttonKey]);
+                                                              NSMutableArray<NSString*> *arr = [[NSMutableArray alloc] init];
+                                                              
+                                                              if (textFields.count != 0) {
+                                                                  for (UITextField* field in weakAlertController.textFields) {
+                                                                      [arr addObject:[field text]];
+                                                                  }
+                                                                  callback(@[buttonKey, arr]);
+                                                              } else {
+                                                                  callback(@[buttonKey]);
+                                                              }
                                                           }]];
     }
     

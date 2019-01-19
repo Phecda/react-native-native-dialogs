@@ -11,9 +11,10 @@ import {
   ReturnKeyType,
   ReturnKeyTypeAndroid,
   ReturnKeyTypeIOS,
-  Platform
+  Platform,
+  KeyboardTypeOptions
 } from "react-native";
-const { RNNativeDialogs, NDAlertManager } = NativeModules;
+const { NDAlertManager } = NativeModules;
 
 export type Nullable<T> = T | null;
 
@@ -35,13 +36,16 @@ export interface IImageAlertOptions extends IPlainAlertOptions {
 export interface IPromptOptions extends IAlertBase {
   submitText?: string;
   submitDestructive?: boolean;
-  onSubmit: (text?: string) => void;
+  onSubmit: (texts: string[]) => void;
   cancelText?: string;
   onCancel?: (text?: string) => void;
-  keyboardType?: KeyboardType;
-  returnKeyType?: ReturnKeyType | ReturnKeyTypeIOS | ReturnKeyTypeAndroid;
-  type?: AlertType;
-  defaultValue?: string;
+  /** Better not set more than 2 textfields */
+  textInputConfigs?: Array<{
+    secureTextEntry?: boolean;
+    placeholder?: string;
+    defaultValue?: string;
+    keyboardType?: KeyboardTypeOptions;
+  }>;
 }
 
 class Alert {
@@ -49,6 +53,13 @@ class Alert {
     submitText: "确定",
     cancelText: "取消"
   };
+
+  public static setDefaultOptions(options: {
+    submitText?: string;
+    cancelText?: string;
+  }) {
+    Alert.defaultOptions = { ...Alert.defaultOptions, ...options };
+  }
 
   public static alertPlain({
     title,
@@ -90,17 +101,20 @@ class Alert {
           });
         }
 
-        NDAlertManager.alertWithArgs({
-          title: title || "",
-          message:  detailText|| undefined,
-          buttons: newButtons,
-          base64: base64,
-          cancelButtonKey,
-          destructiveButtonKey
-        }, (buttonKey: string) =>{
-          const cb = callbacks[Number(buttonKey)];
-          cb && cb();
-        });
+        NDAlertManager.alertWithArgs(
+          {
+            title: title || "",
+            message: detailText || undefined,
+            buttons: newButtons,
+            base64: base64,
+            cancelButtonKey,
+            destructiveButtonKey
+          },
+          (buttonKey: string) => {
+            const cb = callbacks[Number(buttonKey)];
+            cb && cb();
+          }
+        );
       }
     }
   }
@@ -108,44 +122,60 @@ class Alert {
   public static prompt({
     title,
     detailText,
-    cancelText,
+    cancelText = Alert.defaultOptions.cancelText,
     onCancel,
-    submitText,
+    submitText = Alert.defaultOptions.submitText,
     submitDestructive,
     onSubmit,
-    keyboardType,
-    returnKeyType,
-    type,
-    defaultValue
+    textInputConfigs
   }: IPromptOptions) {
     if (Platform.OS === "ios") {
-      const buttons: AlertIOSButton[] = [];
-      if (submitText) {
-        buttons.push({
-          text: submitText,
-          style: submitDestructive
-            ? "destructive"
-            : cancelText
-            ? "default"
-            : "cancel",
-          onPress: onSubmit
+      if (NDAlertManager) {
+        const callbacks: any[] = [];
+        const newButtons: any[] = [];
+        let cancelButtonKey;
+        let destructiveButtonKey;
+        const buttons = [
+          {
+            text: cancelText,
+            style: "cancel",
+            onPress: onCancel
+          },
+          {
+            text: submitText,
+            onPress: onSubmit,
+            style: submitDestructive ? "destructive" : undefined
+          }
+        ];
+        buttons.forEach((btn, index) => {
+          callbacks[index] = btn.onPress;
+          if (btn.style === "cancel") {
+            cancelButtonKey = String(index);
+          } else if (btn.style === "destructive") {
+            destructiveButtonKey = String(index);
+          }
+          if (btn.text || index < (buttons || []).length - 1) {
+            const btnDef: any = {};
+            btnDef[index] = btn.text || "";
+            newButtons.push(btnDef);
+          }
         });
+
+        NDAlertManager.alertWithArgs(
+          {
+            title: title || "",
+            message: detailText || undefined,
+            buttons: newButtons,
+            textInputConfigs,
+            cancelButtonKey,
+            destructiveButtonKey
+          },
+          (buttonKey: string, texts: string[]) => {
+            const cb = callbacks[Number(buttonKey)];
+            cb && cb(texts);
+          }
+        );
       }
-      if (cancelText) {
-        buttons.push({
-          text: cancelText,
-          style: "cancel",
-          onPress: onCancel
-        });
-      }
-      AlertIOS.prompt(
-        title,
-        detailText,
-        buttons.length ? buttons : onSubmit,
-        type,
-        defaultValue,
-        keyboardType
-      );
     } else if (Platform.OS === "android") {
       // TODO
     }

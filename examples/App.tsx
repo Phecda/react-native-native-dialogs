@@ -70,6 +70,17 @@ export default class App extends Component<Props> {
                   base64
                 });
               }
+            }, {
+              title: 'textinput',
+              onPress: () =>{
+                Alert.prompt({
+                  title: 'Prompt',
+                  detailText: 'DetailText',
+                  onSubmit: (texts) =>{
+                    console.log(texts)
+                  }
+                })
+              }
             }
           ]}
           keyExtractor={(_, index) => index.toString()}
