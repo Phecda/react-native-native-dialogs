@@ -76,6 +76,11 @@ export default class App extends Component<Props> {
                 Alert.prompt({
                   title: 'Prompt',
                   detailText: 'DetailText',
+                  textInputConfigs: [
+                    {
+                      placeholder: 'login'
+                    }
+                  ],
                   onSubmit: (texts) =>{
                     console.log(texts)
                   }

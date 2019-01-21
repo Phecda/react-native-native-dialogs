@@ -4,13 +4,13 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "jest",
-    "postinstall": "node ../scripts/examples_postinstall.js node_modules/react-native-native-dialogs"
+    "test": "jest"
   },
   "dependencies": {
+    "@babel/runtime": "^7.2.0",
+    "babel": "^6.23.0",
     "react": "16.6.3",
-    "react-native": "0.57.8",
-    "react-native-native-dialogs": "file:../"
+    "react-native": "0.57.8"
   },
   "devDependencies": {
     "@types/jest": "^23.3.12",
