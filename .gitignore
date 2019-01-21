@@ -46,3 +46,4 @@ buck-out/
 # Custom
 #
 dist/
+.vscode

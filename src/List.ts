@@ -1,23 +1,20 @@
-import { ActionSheetIOS, Platform, NativeModules, ImageSourcePropType } from "react-native";
+import { Platform, NativeModules, ImageSourcePropType } from "react-native";
 
 const { RNNativeDialogs, NDActionSheetManager } = NativeModules;
 
 interface IActionSheetOptions {
   options: Array<{
-    title: string;
+    title?: string;
     /** iOS only, better use with selectedIndex */
-    titleTextAlignment?: 'left'|'right'|'center';
+    titleTextAlignment?: "left" | "right" | "center";
     icon?: ImageSourcePropType;
   }>;
   title?: string;
   message?: string;
   onSelect?: (result: { label: string; index: number }) => void;
   onCancel?: () => void;
-  /**
-   * `null` is preferred on Android, @see https://material.io/design/components/dialogs.html#simple-dialog
-   * `null` or `undefined` will make it uncancelable on iOS
-   */
-  cancelText?: string | null;
+  cancelText?: string;
+  cancelable?: boolean;
   destructiveIndex?: number;
   selectedIndex?: number;
 }
@@ -29,15 +26,16 @@ export default class List {
     message,
     onSelect,
     onCancel,
+    cancelable = true,
     cancelText,
     destructiveIndex,
     selectedIndex
   }: IActionSheetOptions) {
     if (Platform.OS === "ios") {
       let cancelIndex = -1;
-      if (cancelText) {
+      if (cancelable) {
         cancelIndex = options.length;
-        options.push({title: cancelText});
+        options.push({ title: cancelText });
       }
       NDActionSheetManager.showActionSheetWithOptions(
         {
@@ -46,47 +44,48 @@ export default class List {
           message,
           selectedIndex,
           destructiveButtonIndex: destructiveIndex,
-          cancelButtonIndex: cancelIndex,
+          cancelButtonIndex: cancelIndex
         },
         (index: number) => {
-          if (index === cancelIndex)  {
+          if (index === cancelIndex) {
             onCancel && onCancel();
           } else {
-            onSelect && onSelect({
-              label: options[index].title,
-              index,
-            })
+            onSelect &&
+              onSelect({
+                label: options[index].title || "",
+                index
+              });
           }
         }
       );
-    } else if (Platform.OS === 'android') {
+    } else if (Platform.OS === "android") {
       const config: any = {
         title,
         content: message,
         items: options,
-        onPositive: true,
+        onPositive: true
       };
       if (cancelText) {
         config.positiveText = cancelText;
       }
       RNNativeDialogs.showPlainList(config, (type: string, ...rest: any[]) => {
         switch (type) {
-          case 'onDismiss':
-          case 'onPositive':
+          case "onDismiss":
+          case "onPositive":
             onCancel && onCancel();
             break;
-          case 'itemsCallback':
-            
+          case "itemsCallback":
             const [selectedIndex] = rest;
-            onSelect && onSelect({
-              label: options[selectedIndex].title,
-              index: selectedIndex,
-            })
+            onSelect &&
+              onSelect({
+                label: options[selectedIndex].title || "",
+                index: selectedIndex
+              });
             break;
           default:
             break;
         }
-      })
+      });
     }
   }
 }
