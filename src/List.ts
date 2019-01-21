@@ -1,12 +1,17 @@
-import { ActionSheetIOS, Platform, NativeModules } from "react-native";
+import { ActionSheetIOS, Platform, NativeModules, ImageSourcePropType } from "react-native";
 
-const { RNNativeDialogs } = NativeModules;
+const { RNNativeDialogs, NDActionSheetManager } = NativeModules;
 
 interface IActionSheetOptions {
-  options: string[];
+  options: Array<{
+    title: string;
+    /** iOS only, better use with selectedIndex */
+    titleTextAlignment?: 'left'|'right'|'center';
+    icon?: ImageSourcePropType;
+  }>;
   title?: string;
   message?: string;
-  onSelect: (result: { label: string; index: number }) => void;
+  onSelect?: (result: { label: string; index: number }) => void;
   onCancel?: () => void;
   /**
    * `null` is preferred on Android, @see https://material.io/design/components/dialogs.html#simple-dialog
@@ -14,6 +19,7 @@ interface IActionSheetOptions {
    */
   cancelText?: string | null;
   destructiveIndex?: number;
+  selectedIndex?: number;
 }
 
 export default class List {
@@ -24,28 +30,30 @@ export default class List {
     onSelect,
     onCancel,
     cancelText,
-    destructiveIndex
+    destructiveIndex,
+    selectedIndex
   }: IActionSheetOptions) {
     if (Platform.OS === "ios") {
       let cancelIndex = -1;
       if (cancelText) {
         cancelIndex = options.length;
-        options.push(cancelText);
+        options.push({title: cancelText});
       }
-      ActionSheetIOS.showActionSheetWithOptions(
+      NDActionSheetManager.showActionSheetWithOptions(
         {
           options,
           title,
           message,
+          selectedIndex,
           destructiveButtonIndex: destructiveIndex,
-          cancelButtonIndex: cancelIndex
+          cancelButtonIndex: cancelIndex,
         },
-        index => {
+        (index: number) => {
           if (index === cancelIndex)  {
             onCancel && onCancel();
           } else {
-            onSelect({
-              label: options[index],
+            onSelect && onSelect({
+              label: options[index].title,
               index,
             })
           }
@@ -70,8 +78,8 @@ export default class List {
           case 'itemsCallback':
             
             const [selectedIndex] = rest;
-            onSelect({
-              label: options[selectedIndex],
+            onSelect && onSelect({
+              label: options[selectedIndex].title,
               index: selectedIndex,
             })
             break;

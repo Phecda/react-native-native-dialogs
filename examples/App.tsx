@@ -32,20 +32,39 @@ export default class App extends Component<Props> {
               title: "ActionSheet",
               onPress: () => {
                 List.showActionSheet({
-                  options: ["Microsoft", "Apple", "Google"],
+                  options: [{
+                    title: 'Microsoft',
+                    titleTextAlignment: 0,
+                  },{
+                    title: 'Microsoft',
+                    titleTextAlignment: 1,
+                  },{
+                    title: 'Microsoft',
+                    titleTextAlignment: 2,
+                  },{
+                    title: 'Microsoft',
+                    titleTextAlignment: 3,
+                  },{
+                    title: 'Microsoft',
+                    titleTextAlignment: 4,
+                  },{
+                    title: 'Microsoft',
+                    titleTextAlignment: 5,
+                  },{
+                    title: 'Microsoft',
+                    titleTextAlignment: 6,
+                  },{
+                    title: 'Microsoft',
+                    titleTextAlignment: 7,
+                  },{
+                    title: 'Microsoft',
+                    titleTextAlignment: 8,
+                  },{
+                    title: 'Microsoft',
+                    titleTextAlignment: 9,
+                  },],
                   onSelect: ({ label, index }) => {
                     console.log(label, index);
-                  }
-                });
-              }
-            },
-            {
-              title: "Prompt",
-              onPress: () => {
-                Alert.prompt({
-                  title: "Input something",
-                  onSubmit: text => {
-                    console.log("input: ", text);
                   }
                 });
               }
