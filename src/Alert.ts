@@ -166,7 +166,7 @@ class Alert {
             title: title || "",
             message: detailText || undefined,
             buttons: newButtons,
-            textInputConfigs,
+            textInputs: textInputConfigs,
             cancelButtonKey,
             destructiveButtonKey
           },
