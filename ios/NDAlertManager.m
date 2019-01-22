@@ -39,7 +39,7 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
     NSArray<NSDictionary *> *textFields = [RCTConvert NSDictionaryArray:args[@"textInputs"]];
     
     // Image
-    NSString *base64 = [RCTConvert NSString:args[@"base64"]];
+    UIImage *image = [RCTConvert UIImage:args[@"image"]];
     
     if (!title && !message) {
         RCTLogError(@"Must specify either an alert title, or message, or both");
@@ -81,9 +81,6 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
             textField.secureTextEntry = [RCTConvert BOOL:textFieldConfig[@"secureTextEntry"]];
         }];
     }
-
-
-    UIImage* image = [self decodeBase64ToImage:base64];
     
     if (image != nil) {
         CGSize maxSize = CGSizeMake(270 - 24, 204);

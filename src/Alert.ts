@@ -1,19 +1,15 @@
 import {
   Alert as RNAlert,
   AlertButton,
-  AlertIOS,
-  AlertIOSButton,
   AlertOptions,
-  AlertStatic,
-  AlertType,
-  KeyboardType,
   NativeModules,
-  ReturnKeyType,
-  ReturnKeyTypeAndroid,
-  ReturnKeyTypeIOS,
   Platform,
-  KeyboardTypeOptions
+  KeyboardTypeOptions,
+  Image,
+  ImageRequireSource,
+  ImageURISource
 } from "react-native";
+const { resolveAssetSource } = Image;
 const { NDAlertManager } = NativeModules;
 
 export type Nullable<T> = T | null;
@@ -24,13 +20,13 @@ export interface IAlertBase {
 }
 
 export interface IPlainAlertOptions extends IAlertBase {
-  /** According to both AHIG and MD, only up to 3 buttons accepted */
   buttons?: AlertButton[];
   options?: AlertOptions;
 }
 
 export interface IImageAlertOptions extends IPlainAlertOptions {
-  base64: string;
+  /** only accept base64 uri source type */
+  image: ImageRequireSource | ImageURISource;
 }
 
 export interface IPromptOptions extends IAlertBase {
@@ -67,8 +63,7 @@ class Alert {
     buttons,
     options
   }: IPlainAlertOptions) {
-    const limitedButtons = buttons ? buttons.slice(0, 2) : buttons;
-    RNAlert.alert(title, detailText, limitedButtons, options);
+    RNAlert.alert(title, detailText, buttons, options);
   }
 
   public static alertImage({
@@ -76,7 +71,7 @@ class Alert {
     detailText,
     buttons,
     options,
-    base64
+    image
   }: IImageAlertOptions) {
     // TODO - implementation
     if (Platform.OS === "ios") {
@@ -106,7 +101,7 @@ class Alert {
             title: title || "",
             message: detailText || undefined,
             buttons: newButtons,
-            base64: base64,
+            image: resolveAssetSource(image),
             cancelButtonKey,
             destructiveButtonKey
           },

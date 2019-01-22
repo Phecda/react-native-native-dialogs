@@ -7,6 +7,7 @@ interface IActionSheetOptions {
     title?: string;
     /** iOS only, better use with selectedIndex */
     titleTextAlignment?: "left" | "right" | "center";
+    /** Only use local require type or base64 uri */
     icon?: ImageSourcePropType;
   }>;
   title?: string;
@@ -75,11 +76,11 @@ export default class List {
             onCancel && onCancel();
             break;
           case "itemsCallback":
-            const [selectedIndex] = rest;
+            const [selectionIndex] = rest;
             onSelect &&
               onSelect({
-                label: options[selectedIndex].title || "",
-                index: selectedIndex
+                label: options[selectionIndex].title || "",
+                index: selectionIndex
               });
             break;
           default:
