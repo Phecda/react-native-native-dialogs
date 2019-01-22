@@ -49,6 +49,7 @@ export default class App extends Component<Props> {
                   ],
                   title: "ActionSheet Example",
                   message: "result shown in console",
+                  selectedIndex: 2,
                   onSelect: ({ label, index }) => {
                     console.log(label, index);
                   }

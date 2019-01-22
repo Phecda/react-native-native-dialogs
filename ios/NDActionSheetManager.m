@@ -92,21 +92,21 @@ RCT_EXPORT_METHOD(showActionSheetWithOptions:(NSDictionary *)options
     NSInteger index = 0;
     for (NSDictionary *option in buttons) {
         
-        NSString* title = [option valueForKey:@"title"];
+        NSString* buttonTitle = [option valueForKey:@"title"];
         
         UIAlertActionStyle style = UIAlertActionStyleDefault;
         if (index == destructiveButtonIndex) {
             style = UIAlertActionStyleDestructive;
         } else if (index == cancelButtonIndex) {
             style = UIAlertActionStyleCancel;
-            if (!title) {
-                title = RCTUIKitLocalizedString(@"Cancel");
+            if (!buttonTitle) {
+                buttonTitle = RCTUIKitLocalizedString(@"Cancel");
             }
         }
         
         NSInteger localIndex = index;
         
-        UIAlertAction *action = [UIAlertAction actionWithTitle:title style:style handler:^(UIAlertAction * _Nonnull action) {
+        UIAlertAction *action = [UIAlertAction actionWithTitle:buttonTitle style:style handler:^(UIAlertAction * _Nonnull action) {
             callback(@[@(localIndex)]);
         }];
         
