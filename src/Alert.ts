@@ -10,7 +10,7 @@ import {
   ImageURISource
 } from "react-native";
 const { resolveAssetSource } = Image;
-const { NDAlertManager } = NativeModules;
+const { RNNativeDialogs, NDAlertManager } = NativeModules;
 
 export type Nullable<T> = T | null;
 
@@ -41,6 +41,11 @@ export interface IPromptOptions extends IAlertBase {
     placeholder?: string;
     defaultValue?: string;
     keyboardType?: KeyboardTypeOptions;
+    /** Android Only */
+
+    maxLength?: number;
+    minLength?: number;
+    allowEmptyInput?: boolean;
   }>;
 }
 
@@ -172,7 +177,30 @@ class Alert {
         );
       }
     } else if (Platform.OS === "android") {
-      // TODO
+      const textInputConfig = textInputConfigs ? textInputConfigs[0] : {};
+      const {
+        defaultValue: prefill,
+        placeholder: hint,
+        ...rest
+      } = textInputConfig;
+      const config: any = {
+        title,
+        content: detailText,
+        positiveText: submitText,
+        negativeText: cancelText,
+        input: {
+          prefill,
+          hint,
+          ...rest
+        }
+      };
+      RNNativeDialogs.showPrompt(config, (type: string, text?: string) => {
+        if (type === "input") {
+          onSubmit && onSubmit([text!]);
+        } else {
+          onCancel && onCancel();
+        }
+      });
     }
   }
 }

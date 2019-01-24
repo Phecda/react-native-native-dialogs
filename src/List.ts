@@ -63,19 +63,17 @@ export default class List {
       const config: any = {
         title,
         content: message,
-        items: options,
-        onPositive: true
+        items: options.map(opt => opt.title),
+        cancelable,
+        selectedIndex
       };
-      if (cancelText) {
-        config.positiveText = cancelText;
-      }
-      RNNativeDialogs.showPlainList(config, (type: string, ...rest: any[]) => {
+      RNNativeDialogs.showSimpleList(config, (type: string, ...rest: any[]) => {
         switch (type) {
           case "onDismiss":
-          case "onPositive":
             onCancel && onCancel();
             break;
           case "itemsCallback":
+          case "itemsCallbackSingleChoice":
             const [selectionIndex] = rest;
             onSelect &&
               onSelect({

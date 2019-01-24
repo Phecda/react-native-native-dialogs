@@ -1,10 +1,12 @@
 package com.phecda;
 
 import android.content.DialogInterface;
-import android.support.annotation.NonNull;
+import android.media.Image;
+import android.telecom.Call;
+import android.text.InputType;
 import android.view.View;
+import android.widget.ImageView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -35,27 +37,95 @@ public class RNNativeDialogsModule extends ReactContextBaseJavaModule {
     private boolean mCallbackWasInvoked = false;
 
     @ReactMethod
-    public void showPrompt(ReadableMap options, final Promise promise) {
-        mBuilder = new MaterialDialog.Builder(getCurrentActivity());
-    }
-
-    @ReactMethod
-    public void showPlainList(ReadableMap config, final Callback callback) {
+    public void showPrompt(ReadableMap config, final Callback callback) {
         mBuilder = initializedBuilder();
 
         applyOptions(mBuilder, config);
 
-        if (config.hasKey("onPositive")) {
-            mBuilder.onPositive(new MaterialDialog.SingleButtonCallback() {
+        if (config.hasKey("input")) {
+            ReadableMap input = config.getMap("input");
+
+            String hint = input.hasKey("hint") ? input.getString("hint") : null;
+            String prefill = input.hasKey("prefill") ? input.getString("prefill") : null;
+
+            boolean allowEmptyInput = !input.hasKey("allowEmptyInput") || input.getBoolean("allowEmptyInput");
+
+            int keyboardType = InputType.TYPE_CLASS_TEXT;
+
+            if (input.hasKey("keyboardType")) {
+                switch (input.getString("keyboardType")) {
+                    case "phone-pad":
+                        keyboardType = InputType.TYPE_CLASS_PHONE;
+                        break;
+
+                    case "number-pad":
+                        keyboardType = InputType.TYPE_CLASS_NUMBER;
+                        break;
+
+                    case "decimal-pad":
+                        keyboardType = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL;
+                        break;
+
+                    case "numeric":
+                        keyboardType = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED;
+                        break;
+
+                    case "numeric-password":
+                        keyboardType = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD;
+                        break;
+
+                    case "email-address":
+                        keyboardType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
+                        break;
+
+                    case "password":
+                        keyboardType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD;
+                        break;
+
+                    case "url":
+                        keyboardType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_URI;
+                        break;
+
+                    case "visible-password":
+                        keyboardType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD;
+                        break;
+
+                    default:
+                        keyboardType = InputType.TYPE_CLASS_TEXT;
+                }
+            }
+
+            if (input.hasKey("secureTextEntry") && keyboardType != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD && input.getBoolean("secureTextEntry")) {
+                keyboardType = keyboardType | InputType.TYPE_NUMBER_VARIATION_PASSWORD | InputType.TYPE_TEXT_VARIATION_PASSWORD;
+            }
+
+            mBuilder.inputType(keyboardType);
+
+            int minLength = input.hasKey("minLength") ? input.getInt("minLength") : 0;
+            int maxLength = input.hasKey("maxLength") ? input.getInt("maxLength") : -1;
+
+            mBuilder.inputRange(minLength, maxLength);
+
+            mBuilder.input(hint, prefill, allowEmptyInput, new MaterialDialog.InputCallback() {
                 @Override
-                public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                public void onInput(MaterialDialog materialDialog, CharSequence charSequence) {
                     if (!mCallbackWasInvoked) {
                         mCallbackWasInvoked = true;
-                        callback.invoke("onPositive");
+                        callback.invoke("input", charSequence.toString(), materialDialog.isPromptCheckBoxChecked());
                     }
                 }
             });
+
+            show();
+
         }
+    }
+
+    @ReactMethod
+    public void showSimpleList(ReadableMap config, final Callback callback) {
+        mBuilder = initializedBuilder();
+
+        applyOptions(mBuilder, config);
 
 
         if (config.hasKey("itemsCallback")) {
@@ -66,6 +136,21 @@ public class RNNativeDialogsModule extends ReactContextBaseJavaModule {
                         mCallbackWasInvoked = true;
                         callback.invoke("itemsCallback", position);
                     }
+                }
+            });
+        }
+
+        if (config.hasKey("selectedIndex")) {
+            int selectedIndex = config.hasKey("selectedIndex") ? config.getInt("selectedIndex") : -1;
+            mBuilder.itemsCallbackSingleChoice(selectedIndex, new MaterialDialog.ListCallbackSingleChoice() {
+                @Override
+                public boolean onSelection(MaterialDialog dialog, View itemView, int which, CharSequence text) {
+                    if (!mCallbackWasInvoked) {
+                        mCallbackWasInvoked = true;
+                        text = text == null ? "" : text;
+                        callback.invoke("itemsCallbackSingleChoice", which);
+                    }
+                    return true;
                 }
             });
         }
@@ -104,6 +189,9 @@ public class RNNativeDialogsModule extends ReactContextBaseJavaModule {
                     break;
                 case "content":
                     builder.content(options.getString(key));
+                    break;
+                case "cancelable":
+                    builder.cancelable(options.getBoolean(key));
                     break;
                 case "positiveText":
                     builder.positiveText(options.getString(key));

@@ -49,9 +49,11 @@ export default class App extends Component<Props> {
                   ],
                   title: "ActionSheet Example",
                   message: "result shown in console",
-                  selectedIndex: 2,
                   onSelect: ({ label, index }) => {
                     console.log(label, index);
+                  },
+                  onCancel: () => {
+                    console.log("onCancel");
                   }
                 });
               }
@@ -87,7 +89,10 @@ export default class App extends Component<Props> {
                   detailText: "dont add too many textInput",
                   textInputConfigs: [
                     {
-                      placeholder: "login"
+                      placeholder: "login",
+                      maxLength: 15,
+                      minLength: 6,
+                      keyboardType: "url"
                     }
                   ],
                   onSubmit: texts => {
