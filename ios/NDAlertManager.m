@@ -36,7 +36,7 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
     NSString *destructiveButtonKey = [RCTConvert NSString:args[@"destructiveButtonKey"]];
     
     // TextInput
-    NSArray<NSDictionary *> *textFields = [RCTConvert NSDictionaryArray:args[@"textInputs"]];
+    NSDictionary * textFieldConfig = [RCTConvert NSDictionary:args[@"textInputConfig"]];
     
     if (!title && !message) {
         RCTLogError(@"Must specify either an alert title, or message, or both");
@@ -44,7 +44,7 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
     }
     
     if (buttons.count == 0) {
-        if (textFields.count == 0) {
+        if (textFieldConfig == nil) {
             buttons = @[@{@"0": RCTUIKitLocalizedString(@"OK")}];
             cancelButtonKey = @"0";
         } else {
@@ -69,7 +69,7 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
     
     alertController.message = message;
     
-    for (NSDictionary<NSString *, id> *textFieldConfig in textFields) {
+    if (textFieldConfig) {
         [alertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
             textField.placeholder = [RCTConvert NSString:textFieldConfig[@"placeholder"]];
             textField.text = [RCTConvert NSString:textFieldConfig[@"defaultValue"]];
@@ -94,13 +94,8 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
         [alertController addAction:[UIAlertAction actionWithTitle:buttonTitle
                                                             style:buttonStyle
                                                           handler:^(__unused UIAlertAction *action) {
-                                                              NSMutableArray<NSString*> *arr = [[NSMutableArray alloc] init];
-                                                              
-                                                              if (textFields.count != 0) {
-                                                                  for (UITextField* field in weakAlertController.textFields) {
-                                                                      [arr addObject:[field text]];
-                                                                  }
-                                                                  callback(@[buttonKey, arr]);
+                                                              if (textFieldConfig) {
+                                                                  callback(@[buttonKey, [weakAlertController.textFields.firstObject text]]);
                                                               } else {
                                                                   callback(@[buttonKey]);
                                                               }

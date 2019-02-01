@@ -1,74 +1,38 @@
-import {
-  Alert as RNAlert,
-  AlertButton,
-  AlertOptions,
-  NativeModules,
-  Platform,
-  KeyboardTypeOptions,
-  Image,
-  ImageRequireSource,
-  ImageURISource
-} from "react-native";
-const { resolveAssetSource } = Image;
+import { KeyboardTypeOptions, NativeModules, Platform } from "react-native";
 const { RNNativeDialogs, NDAlertManager } = NativeModules;
-
-export type Nullable<T> = T | null;
 
 export interface IAlertBase {
   title: string;
   detailText?: string;
 }
 
-export interface IPlainAlertOptions extends IAlertBase {
-  buttons?: AlertButton[];
-  options?: AlertOptions;
-}
-
-export interface IImageAlertOptions extends IPlainAlertOptions {
-  /** only accept base64 uri source type */
-  image: ImageRequireSource | ImageURISource;
-}
-
 export interface IPromptOptions extends IAlertBase {
   submitText?: string;
   submitDestructive?: boolean;
-  onSubmit: (texts: string[]) => void;
+  onSubmit: (text: string) => void;
   cancelText?: string;
   onCancel?: (text?: string) => void;
-  /** Better not set more than 2 textfields */
-  textInputConfigs?: Array<{
+  textInputConfig?: {
     secureTextEntry?: boolean;
     placeholder?: string;
     defaultValue?: string;
     keyboardType?: KeyboardTypeOptions;
-    /** Android Only */
 
+    /** Android Only */
     maxLength?: number;
     minLength?: number;
     allowEmptyInput?: boolean;
-  }>;
+  };
 }
 
 class Alert {
-  public static defaultOptions = {
-    submitText: "确定",
-    cancelText: "取消"
+  public static defaultOptions: Partial<IPromptOptions> = {
+    submitText: "OK",
+    cancelText: "Cancel"
   };
 
-  public static setDefaultOptions(options: {
-    submitText?: string;
-    cancelText?: string;
-  }) {
+  public static setDefaultOptions(options: Partial<IPromptOptions>) {
     Alert.defaultOptions = { ...Alert.defaultOptions, ...options };
-  }
-
-  public static alertPlain({
-    title,
-    detailText,
-    buttons,
-    options
-  }: IPlainAlertOptions) {
-    RNAlert.alert(title, detailText, buttons, options);
   }
 
   public static prompt({
@@ -79,7 +43,7 @@ class Alert {
     submitText = Alert.defaultOptions.submitText,
     submitDestructive,
     onSubmit,
-    textInputConfigs
+    textInputConfig
   }: IPromptOptions) {
     if (Platform.OS === "ios") {
       if (NDAlertManager) {
@@ -118,7 +82,7 @@ class Alert {
             title: title || "",
             message: detailText || undefined,
             buttons: newButtons,
-            textInputs: textInputConfigs,
+            textInputConfig,
             cancelButtonKey,
             destructiveButtonKey
           },
@@ -129,26 +93,27 @@ class Alert {
         );
       }
     } else if (Platform.OS === "android") {
-      const textInputConfig = textInputConfigs ? textInputConfigs[0] : {};
-      const {
-        defaultValue: prefill,
-        placeholder: hint,
-        ...rest
-      } = textInputConfig;
       const config: any = {
         title,
         content: detailText,
         positiveText: submitText,
-        negativeText: cancelText,
-        input: {
+        negativeText: cancelText
+      };
+      if (textInputConfig) {
+        const {
+          defaultValue: prefill,
+          placeholder: hint,
+          ...rest
+        } = textInputConfig;
+        config.input = {
           prefill,
           hint,
           ...rest
-        }
-      };
+        };
+      }
       RNNativeDialogs.showPrompt(config, (type: string, text?: string) => {
         if (type === "input") {
-          onSubmit && onSubmit([text!]);
+          onSubmit && onSubmit(text || "");
         } else {
           onCancel && onCancel();
         }
