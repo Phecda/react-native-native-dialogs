@@ -38,9 +38,6 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
     // TextInput
     NSArray<NSDictionary *> *textFields = [RCTConvert NSDictionaryArray:args[@"textInputs"]];
     
-    // Image
-    UIImage *image = [RCTConvert UIImage:args[@"image"]];
-    
     if (!title && !message) {
         RCTLogError(@"Must specify either an alert title, or message, or both");
         return;
@@ -70,7 +67,6 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
                                           message:nil
                                           preferredStyle:UIAlertControllerStyleAlert];
     
-    
     alertController.message = message;
     
     for (NSDictionary<NSString *, id> *textFieldConfig in textFields) {
@@ -80,34 +76,6 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
             textField.keyboardType = [RCTConvert UIKeyboardType:textFieldConfig[@"keyboardType"]];
             textField.secureTextEntry = [RCTConvert BOOL:textFieldConfig[@"secureTextEntry"]];
         }];
-    }
-    
-    if (image != nil) {
-        CGSize maxSize = CGSizeMake(270 - 24, 204);
-
-        CGSize imageSize = image.size;
-        CGFloat ratio;
-        if (imageSize.width > imageSize.height) {
-            ratio = maxSize.width / imageSize.width;
-        } else {
-            ratio = maxSize.height / imageSize.height;
-        }
-
-        CGSize scaledSize = CGSizeMake(imageSize.width * ratio, imageSize.height * ratio);
-
-        UIImage* resizedImage = [self resizeImage:image ToSize:scaledSize];
-
-    
-        CGFloat left = (maxSize.width - resizedImage.size.width) / 2;
-
-        resizedImage = [resizedImage imageWithAlignmentRectInsets:UIEdgeInsetsMake(0, -left, 0, 0)];
-        
-        
-        UIAlertAction *imageAction = [UIAlertAction actionWithTitle:@"" style:UIAlertActionStyleDefault handler:nil];
-        [imageAction setValue:[resizedImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-        [imageAction setEnabled:NO];
-
-        [alertController addAction:imageAction];
     }
     
     for (NSDictionary<NSString *, id> *button in buttons) {
@@ -145,42 +113,6 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
     [_alertControllers addObject:alertController];
     
     [presentingController presentViewController:alertController animated:YES completion:nil];
-}
-
-- (UIImage *)decodeBase64ToImage:(NSString *)strEncodeData {
-    
-    @try {
-        NSData *data = [[NSData alloc]initWithBase64EncodedString:strEncodeData options:NSDataBase64DecodingIgnoreUnknownCharacters];
-        
-        UIImage *image =[UIImage imageWithData:data];
-        return image;
-    } @catch (NSException *exception) {
-        return nil;
-    }
-    
-    
-}
-
-- (UIImage *)resizeImage:(UIImage*)source ToSize:(CGSize)size {
-    
-    CGFloat aspectWidth = size.width / source.size.width;
-    CGFloat aspectHeight = size.height / source.size.height;
-    CGFloat aspectRatio = aspectWidth > aspectHeight ? aspectHeight : aspectWidth;
-    
-    CGRect scaledImageRect = CGRectZero;
-    scaledImageRect.size.width = source.size.width * aspectRatio;
-    scaledImageRect.size.height = source.size.height * aspectRatio;
-    scaledImageRect.origin.x = (size.width - scaledImageRect.size.width) / 2.0;
-    scaledImageRect.origin.y = (size.height - scaledImageRect.size.height) / 2.0;
-    
-    UIGraphicsBeginImageContextWithOptions(size, NO, 0);
-    
-    [source drawInRect:scaledImageRect];
-    UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    return scaledImage;
-    
 }
 
 @end

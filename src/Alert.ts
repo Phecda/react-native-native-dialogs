@@ -71,54 +71,6 @@ class Alert {
     RNAlert.alert(title, detailText, buttons, options);
   }
 
-  public static alertImage({
-    title,
-    detailText,
-    buttons,
-    options,
-    image
-  }: IImageAlertOptions) {
-    // TODO - implementation
-    if (Platform.OS === "ios") {
-      if (NDAlertManager) {
-        const callbacks: any[] = [];
-        const newButtons: any[] = [];
-        let cancelButtonKey;
-        let destructiveButtonKey;
-        if (buttons) {
-          buttons.forEach((btn, index) => {
-            callbacks[index] = btn.onPress;
-            if (btn.style === "cancel") {
-              cancelButtonKey = String(index);
-            } else if (btn.style === "destructive") {
-              destructiveButtonKey = String(index);
-            }
-            if (btn.text || index < (buttons || []).length - 1) {
-              const btnDef: any = {};
-              btnDef[index] = btn.text || "";
-              newButtons.push(btnDef);
-            }
-          });
-        }
-
-        NDAlertManager.alertWithArgs(
-          {
-            title: title || "",
-            message: detailText || undefined,
-            buttons: newButtons,
-            image: resolveAssetSource(image),
-            cancelButtonKey,
-            destructiveButtonKey
-          },
-          (buttonKey: string) => {
-            const cb = callbacks[Number(buttonKey)];
-            cb && cb();
-          }
-        );
-      }
-    }
-  }
-
   public static prompt({
     title,
     detailText,
