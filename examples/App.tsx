@@ -36,15 +36,18 @@ export default class App extends Component<Props> {
                   options: [
                     {
                       title: "Left Align",
-                      titleTextAlignment: "left"
+                      titleTextAlignment: "left",
+                      icon: require("./assets/ico_help.png")
                     },
                     {
                       title: "Center (default)",
-                      titleTextAlignment: "center"
+                      titleTextAlignment: "center",
+                      icon: require("./assets/ico_share.png")
                     },
                     {
                       title: "Right align",
-                      titleTextAlignment: "right"
+                      titleTextAlignment: "right",
+                      icon: require("./assets/ico_search.png")
                     }
                   ],
                   title: "ActionSheet Example",

@@ -1,4 +1,9 @@
-import { Platform, NativeModules, ImageSourcePropType } from "react-native";
+import {
+  Platform,
+  NativeModules,
+  ImageSourcePropType,
+  Image
+} from "react-native";
 
 const { RNNativeDialogs, NDActionSheetManager } = NativeModules;
 
@@ -40,7 +45,12 @@ export default class List {
       }
       NDActionSheetManager.showActionSheetWithOptions(
         {
-          options,
+          options: options.map(option => ({
+            ...option,
+            icon: option.icon
+              ? Image.resolveAssetSource(option.icon)
+              : undefined
+          })),
           title,
           message,
           selectedIndex,
