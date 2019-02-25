@@ -111,7 +111,7 @@ export default class App extends Component<any, IState> {
                       ]);
                     }
                     RNND.showActionSheet({
-                      options: keyboardTypes.map(type => ({ title: type })),
+                      options: keyboardTypes,
                       onSelect: ({ label }) => {
                         this.setState({
                           keyboardType: label as NDKeyboardType

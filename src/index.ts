@@ -54,13 +54,16 @@ export interface IPromptOptions extends IAlertBase {
 }
 
 export interface IActionSheetOptions {
-  options: Array<{
-    title?: string;
-    /** iOS only, better use with selectedIndex */
-    titleTextAlignment?: "left" | "right" | "center";
-    /** Only use local require type or base64 uri */
-    icon?: ImageSourcePropType;
-  }>;
+  options: Array<
+    | {
+        title?: string;
+        /** iOS only, better use with selectedIndex */
+        titleTextAlignment?: "left" | "right" | "center";
+        /** Only use local require type or base64 uri */
+        icon?: ImageSourcePropType;
+      }
+    | string
+  >;
   title?: string;
   message?: string;
   onSelect?: (result: { label: string; index: number }) => void;
@@ -170,7 +173,7 @@ export default class RNND {
 
   public static showActionSheet(sheetOptions: IActionSheetOptions) {
     const {
-      options,
+      options: items,
       title,
       message,
       onSelect,
@@ -180,6 +183,9 @@ export default class RNND {
       destructiveIndex,
       selectedIndex
     } = sheetOptions;
+    const options = items.map(item =>
+      typeof item === "string" ? { title: item } : item
+    );
 
     if (Platform.OS === "ios") {
       let cancelIndex = -1;
