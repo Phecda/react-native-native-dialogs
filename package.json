@@ -2,21 +2,18 @@
   "name": "react-native-native-dialogs",
   "title": "React Native Native Dialogs",
   "version": "1.0.0",
-  "description": "",
+  "description": "Native dialogs used in React Native",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "prepare": "rm -rf dist && tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepare": "rm -rf dist && tsc"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Phecda/react-native-native-dialogs.git",
     "baseUrl": "https://github.com/Phecda/react-native-native-dialogs"
   },
-  "keywords": [
-    "react-native"
-  ],
+  "keywords": ["react-native"],
   "author": {
     "name": "Phecda",
     "email": "szp12345141@gmail.com"
