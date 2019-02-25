@@ -1,6 +1,75 @@
-import { NativeModules, Image, Platform } from "react-native";
-import { IActionSheetOptions, IPromptOptions } from "./types";
+import {
+  NativeModules,
+  Image,
+  Platform,
+  ImageSourcePropType
+} from "react-native";
 const { NDAlertManager, NDActionSheetManager, RNNativeDialogs } = NativeModules;
+
+export type NDKeyboardTypeCommon =
+  | "default"
+  | "email-address"
+  | "numeric"
+  | "phone-pad"
+  | "number-pad"
+  | "decimal-pad"
+  | "url";
+export type NDKeyboardTypeIOS =
+  | "ascii-capable"
+  | "numbers-and-punctuation"
+  | "name-phone-pad"
+  | "twitter"
+  | "web-search";
+export type NDKeyboardTypeAndroid =
+  | "visible-password"
+  | "numeric-password"
+  | "password";
+export type NDKeyboardType =
+  | NDKeyboardTypeCommon
+  | NDKeyboardTypeIOS
+  | NDKeyboardTypeAndroid;
+
+export interface IAlertBase {
+  title: string;
+  detailText?: string;
+}
+
+export interface IPromptOptions extends IAlertBase {
+  submitText?: string;
+  submitDestructive?: boolean;
+  onSubmit: (text: string) => void;
+  cancelText?: string;
+  onCancel?: (text?: string) => void;
+  textInputConfig?: {
+    secureTextEntry?: boolean;
+    placeholder?: string;
+    defaultValue?: string;
+    keyboardType?: NDKeyboardType;
+
+    /** Android Only */
+    maxLength?: number;
+    minLength?: number;
+    allowEmptyInput?: boolean;
+  };
+}
+
+export interface IActionSheetOptions {
+  options: Array<{
+    title?: string;
+    /** iOS only, better use with selectedIndex */
+    titleTextAlignment?: "left" | "right" | "center";
+    /** Only use local require type or base64 uri */
+    icon?: ImageSourcePropType;
+  }>;
+  title?: string;
+  message?: string;
+  onSelect?: (result: { label: string; index: number }) => void;
+  onCancel?: () => void;
+  cancelText?: string;
+  cancelable?: boolean;
+  destructiveIndex?: number;
+  selectedIndex?: number;
+}
 
 export default class RNND {
   public static defaultOptions: Partial<IPromptOptions> = {
@@ -88,6 +157,7 @@ export default class RNND {
           ...rest
         };
       }
+
       RNNativeDialogs.showPrompt(config, (type: string, text?: string) => {
         if (type === "input") {
           onSubmit && onSubmit(text || "");
@@ -117,6 +187,7 @@ export default class RNND {
         cancelIndex = options.length;
         options.push({ title: cancelText });
       }
+
       NDActionSheetManager.showActionSheetWithOptions(
         {
           options: options.map(option => ({
@@ -151,6 +222,10 @@ export default class RNND {
         cancelable,
         selectedIndex
       };
+      if (selectedIndex === undefined) {
+        config.itemsCallback = true;
+      }
+
       RNNativeDialogs.showSimpleList(config, (type: string, ...rest: any[]) => {
         switch (type) {
           case "onDismiss":
