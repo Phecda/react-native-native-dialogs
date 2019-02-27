@@ -125,9 +125,9 @@ export default class App extends Component<any, IState> {
                   onPress: () => {
                     RNND.prompt({
                       title: "Prompt",
-                      detailText: "dont add too many textInput",
+                      detailText: "some messages",
                       textInputConfig: {
-                        secureTextEntry: true,
+                        secureTextEntry: false,
                         placeholder: "login",
                         maxLength: 15,
                         minLength: 6,

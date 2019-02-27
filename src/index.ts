@@ -2,7 +2,8 @@ import {
   NativeModules,
   Image,
   Platform,
-  ImageSourcePropType
+  ImageRequireSource,
+  ImageURISource
 } from "react-native";
 const { NDAlertManager, NDActionSheetManager, RNNativeDialogs } = NativeModules;
 
@@ -46,9 +47,17 @@ export interface IPromptOptions extends IAlertBase {
     defaultValue?: string;
     keyboardType?: NDKeyboardType;
 
-    /** Android Only */
+    /**
+     * @platform android
+     */
     maxLength?: number;
+    /**
+     * @platform android
+     */
     minLength?: number;
+    /**
+     * @platform android
+     */
     allowEmptyInput?: boolean;
   };
 }
@@ -57,10 +66,15 @@ export interface IActionSheetOptions {
   options: Array<
     | {
         title?: string;
-        /** iOS only, better use with selectedIndex */
+        /**
+         * @platform iOS
+         */
         titleTextAlignment?: "left" | "right" | "center";
-        /** Only use local require type or base64 uri */
-        icon?: ImageSourcePropType;
+        /**
+         * **MUST** be a require source or a base64 uri source, cannot be an online image
+         * @platform iOS
+         */
+        icon?: ImageRequireSource | ImageURISource;
       }
     | string
   >;
@@ -70,6 +84,9 @@ export interface IActionSheetOptions {
   onCancel?: () => void;
   cancelText?: string;
   cancelable?: boolean;
+  /**
+   * @platform iOS
+   */
   destructiveIndex?: number;
   selectedIndex?: number;
 }
@@ -93,7 +110,7 @@ export default class RNND {
       submitText = RNND.defaultOptions.submitText,
       submitDestructive,
       onSubmit,
-      textInputConfig
+      textInputConfig = {}
     } = promptOptions;
 
     if (Platform.OS === "ios") {
