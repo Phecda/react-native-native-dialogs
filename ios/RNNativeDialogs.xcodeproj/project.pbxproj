@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B3E7B58A1CC2AC0600A0062D /* RNNativeDialogs.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RNNativeDialogs.m */; };
 		C4D256E621F0A8B500C632D2 /* NDAlertManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D256E421F0A8B400C632D2 /* NDAlertManager.m */; };
 		C4D256E921F0B0B600C632D2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C4D256E821F0B0B600C632D2 /* CoreGraphics.framework */; };
 		C4D2594021F5774400C632D2 /* NDActionSheetManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C4D2593F21F5774400C632D2 /* NDActionSheetManager.m */; };
@@ -27,8 +26,6 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libRNNativeDialogs.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRNNativeDialogs.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		B3E7B5881CC2AC0600A0062D /* RNNativeDialogs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNNativeDialogs.h; sourceTree = "<group>"; };
-		B3E7B5891CC2AC0600A0062D /* RNNativeDialogs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNNativeDialogs.m; sourceTree = "<group>"; };
 		C4D256E421F0A8B400C632D2 /* NDAlertManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NDAlertManager.m; sourceTree = "<group>"; };
 		C4D256E521F0A8B500C632D2 /* NDAlertManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NDAlertManager.h; sourceTree = "<group>"; };
 		C4D256E821F0B0B600C632D2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -63,8 +60,6 @@
 				C4D2593F21F5774400C632D2 /* NDActionSheetManager.m */,
 				C4D256E521F0A8B500C632D2 /* NDAlertManager.h */,
 				C4D256E421F0A8B400C632D2 /* NDAlertManager.m */,
-				B3E7B5881CC2AC0600A0062D /* RNNativeDialogs.h */,
-				B3E7B5891CC2AC0600A0062D /* RNNativeDialogs.m */,
 				134814211AA4EA7D00B7C361 /* Products */,
 				C4D256E721F0B0B600C632D2 /* Frameworks */,
 			);
@@ -135,7 +130,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				C4D256E621F0A8B500C632D2 /* NDAlertManager.m in Sources */,
-				B3E7B58A1CC2AC0600A0062D /* RNNativeDialogs.m in Sources */,
 				C4D2594021F5774400C632D2 /* NDActionSheetManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
