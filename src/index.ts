@@ -3,7 +3,8 @@ import {
   Image,
   Platform,
   ImageRequireSource,
-  ImageURISource
+  ImageURISource,
+  processColor
 } from "react-native";
 const { NDAlertManager, NDActionSheetManager, RNNativeDialogs } = NativeModules;
 
@@ -89,6 +90,7 @@ export interface IActionSheetOptions {
    */
   destructiveIndex?: number;
   selectedIndex?: number;
+  tintColor?: string;
 }
 
 export default class RNND {
@@ -198,7 +200,8 @@ export default class RNND {
       cancelable = true,
       cancelText,
       destructiveIndex,
-      selectedIndex
+      selectedIndex,
+      tintColor
     } = sheetOptions;
     const options = items.map(item =>
       typeof item === "string" ? { title: item } : item
@@ -222,6 +225,7 @@ export default class RNND {
           title,
           message,
           selectedIndex,
+          tintColor: processColor(tintColor),
           destructiveButtonIndex: destructiveIndex,
           cancelButtonIndex: cancelIndex
         },
@@ -243,7 +247,8 @@ export default class RNND {
         content: message,
         items: options.map(opt => opt.title),
         cancelable,
-        selectedIndex
+        selectedIndex,
+        contentColor: processColor(tintColor)
       };
       if (selectedIndex === undefined) {
         config.itemsCallback = true;

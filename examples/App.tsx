@@ -63,6 +63,7 @@ export default class App extends Component<any, IState> {
                       ],
                       title: "ActionSheet Example",
                       message: "result shown in console",
+                      tintColor: "#ff0000",
                       selectedIndex: this.state.actionSheetSelectedIndex,
                       onSelect: ({ label, index }) => {
                         this.setState({

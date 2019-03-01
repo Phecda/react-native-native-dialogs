@@ -190,6 +190,9 @@ public class RNNativeDialogsModule extends ReactContextBaseJavaModule {
                 case "content":
                     builder.content(options.getString(key));
                     break;
+                case "contentColor":
+                    builder.contentColor(options.getInt(key));
+                    break;
                 case "cancelable":
                     builder.cancelable(options.getBoolean(key));
                     break;
