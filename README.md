@@ -11,9 +11,26 @@ This module is not on npm, install from github instead.
 1. [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/ios/overview/themes/)
 2. [React Native Doc](https://facebook.github.io/react-native/docs/alertios)
 3. [Material Design](https://material.io/design/)
-4. [Material Dialogs](https://github.com/afollestad/material-dialogs/tree/03fed5b82196063a983a986128cc64ec98a321f7) by @afollestad, version 0.9.6.0
+4. [Material Dialogs](https://github.com/afollestad/material-dialogs) by @afollestad
 5. [react-native-dialogs](https://github.com/aakashns/react-native-dialogs) by @aakashns
 6. [Hekla app](https://github.com/birkir/hekla)
+
+## Setup
+
+### Android
+
+Modify `android/build.gradle` as following:
+
+``` groovy
+buildscript {
+    ext.kotlin_version = '1.3.50'
+    ...
+    dependencies {
+      ...
+      classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+```
 
 ## Usage
 
