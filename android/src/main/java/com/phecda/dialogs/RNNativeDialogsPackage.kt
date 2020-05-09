@@ -1,4 +1,4 @@
-package com.phecda
+package com.phecda.dialogs
 
 import java.util.Arrays
 
