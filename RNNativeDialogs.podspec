@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   # s.license    = { :type => "MIT", :file => "FILE_LICENSE" }
   s.author       = { "author" => "author@domain.cn" }
   s.platform     = :ios, "9.0"
-  s.source       = { :git => "https://github.com/Phecda/react-native-native-dialogs.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/Phecda/react-native-native-dialogs.git", :tag => "v#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m}"
   s.requires_arc = true
