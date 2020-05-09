@@ -12,6 +12,7 @@
 @implementation NDAlertManager
 {
     NSHashTable *_alertControllers;
+    __weak UIAlertAction* _submitAction;
 }
 
 RCT_EXPORT_MODULE()
@@ -27,34 +28,22 @@ RCT_EXPORT_MODULE()
     }
 }
 
-RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(alertWithArgs :(NSDictionary *)args
+                  :(RCTPromiseResolveBlock)resolve
+                  :(RCTPromiseRejectBlock)reject)
 {
     NSString *title = [RCTConvert NSString:args[@"title"]];
     NSString *message = [RCTConvert NSString:args[@"message"]];
-    NSArray<NSDictionary *> *buttons = [RCTConvert NSDictionaryArray:args[@"buttons"]];
-    NSString *cancelButtonKey = [RCTConvert NSString:args[@"cancelButtonKey"]];
-    NSString *destructiveButtonKey = [RCTConvert NSString:args[@"destructiveButtonKey"]];
-    
-    // TextInput
-    NSDictionary * textFieldConfig = [RCTConvert NSDictionary:args[@"textInputConfig"]];
     
     if (!title && !message) {
         RCTLogError(@"Must specify either an alert title, or message, or both");
         return;
     }
     
-    if (buttons.count == 0) {
-        if (textFieldConfig == nil) {
-            buttons = @[@{@"0": RCTUIKitLocalizedString(@"OK")}];
-            cancelButtonKey = @"0";
-        } else {
-            buttons = @[
-                        @{@"0": RCTUIKitLocalizedString(@"OK")},
-                        @{@"1": RCTUIKitLocalizedString(@"Cancel")},
-                        ];
-            cancelButtonKey = @"1";
-        }
-    }
+    BOOL submitDestructive = args[@"submitDestructive"] ? [RCTConvert BOOL:args[@"submitDestructive"]] : NO;
+    BOOL allowEmptyInput = args[@"allowEmptyInput"] ? [RCTConvert BOOL:args[@"allowEmptyInput"]] : YES;
+    
+    NSString* defaultValue = [RCTConvert NSString:args[@"defaultValue"]];
     
     UIViewController *presentingController = RCTPresentedViewController();
     if (presentingController == nil) {
@@ -64,43 +53,40 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
     
     UIAlertController *alertController = [UIAlertController
                                           alertControllerWithTitle:title
-                                          message:nil
+                                          message:message
                                           preferredStyle:UIAlertControllerStyleAlert];
     
-    alertController.message = message;
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+        textField.placeholder = [RCTConvert NSString:args[@"placeholder"]];
+        textField.text = defaultValue;
+        textField.keyboardType = [RCTConvert UIKeyboardType:args[@"keyboardType"]];
+        textField.secureTextEntry = [RCTConvert BOOL:args[@"secureTextEntry"]];
+        [textField addTarget:self action:@selector(onTextChanged:) forControlEvents:UIControlEventEditingChanged];
+    }];
     
-    if (textFieldConfig) {
-        [alertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
-            textField.placeholder = [RCTConvert NSString:textFieldConfig[@"placeholder"]];
-            textField.text = [RCTConvert NSString:textFieldConfig[@"defaultValue"]];
-            textField.keyboardType = [RCTConvert UIKeyboardType:textFieldConfig[@"keyboardType"]];
-            textField.secureTextEntry = [RCTConvert BOOL:textFieldConfig[@"secureTextEntry"]];
-        }];
+    NSString* submitText = [RCTConvert NSString:args[@"submitText"]] ?: RCTUIKitLocalizedString(@"OK");
+    NSString* cancelText = [RCTConvert NSString:args[@"cancelText"]] ?: RCTUIKitLocalizedString(@"Cancel");
+    
+    __weak UIAlertController* weakAlertController = alertController;
+    
+    UIAlertAction* submitAction = [UIAlertAction actionWithTitle:submitText style:submitDestructive ? UIAlertActionStyleDestructive : UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        resolve([weakAlertController.textFields.firstObject text]);
+    }];
+    
+    if (!allowEmptyInput) {
+        _submitAction = submitAction;
+        if ([defaultValue length] == 0){
+            [submitAction setEnabled: NO];
+        }
     }
     
-    for (NSDictionary<NSString *, id> *button in buttons) {
-        if (button.count != 1) {
-            RCTLogError(@"Button definitions should have exactly one key.");
-        }
-        NSString *buttonKey = button.allKeys.firstObject;
-        NSString *buttonTitle = [RCTConvert NSString:button[buttonKey]];
-        UIAlertActionStyle buttonStyle = UIAlertActionStyleDefault;
-        if ([buttonKey isEqualToString:cancelButtonKey]) {
-            buttonStyle = UIAlertActionStyleCancel;
-        } else if ([buttonKey isEqualToString:destructiveButtonKey]) {
-            buttonStyle = UIAlertActionStyleDestructive;
-        }
-        __weak UIAlertController *weakAlertController = alertController;
-        [alertController addAction:[UIAlertAction actionWithTitle:buttonTitle
-                                                            style:buttonStyle
-                                                          handler:^(__unused UIAlertAction *action) {
-                                                              if (textFieldConfig) {
-                                                                  callback(@[buttonKey, [weakAlertController.textFields.firstObject text]]);
-                                                              } else {
-                                                                  callback(@[buttonKey]);
-                                                              }
-                                                          }]];
-    }
+    
+    UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:cancelText style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        reject(@"", @"", nil);
+    }];
+    
+    [alertController addAction:submitAction];
+    [alertController addAction:cancelAction];
     
     if (!_alertControllers) {
         _alertControllers = [NSHashTable weakObjectsHashTable];
@@ -108,6 +94,11 @@ RCT_EXPORT_METHOD(alertWithArgs:(NSDictionary *)args callback:(RCTResponseSender
     [_alertControllers addObject:alertController];
     
     [presentingController presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void)onTextChanged: (UITextField*)sender
+{
+    [_submitAction setEnabled:[sender.text length] != 0];
 }
 
 @end

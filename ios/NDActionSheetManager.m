@@ -12,7 +12,7 @@ RCT_ENUM_CONVERTER(NDActionTextAlignment, (@{
                                             @"left": @(NDActionTextAlignmentLeft),
                                             @"center": @(NDActionTextAlignmentCenter),
                                             @"right": @(NDActionTextAlignmentRight)
-                                            }), NDActionTextAlignmentLeft, integerValue)
+                                            }), NDActionTextAlignmentCenter, integerValue)
 
 @end
 
@@ -65,9 +65,19 @@ RCT_EXPORT_METHOD(showActionSheetWithOptions:(NSDictionary *)options
     
     NSString *title = [RCTConvert NSString:options[@"title"]];
     NSString *message = [RCTConvert NSString:options[@"message"]];
-    NSArray<NSDictionary *> *buttons = [RCTConvert NSDictionaryArray:options[@"options"]];
+    
+    BOOL cancelable = options[@"cancelable"] ? [RCTConvert BOOL:options[@"cancelable"]] : YES;
+    NSString *cancelText = [RCTConvert NSString:options[@"cancelText"]];
+    
+    NSArray<NSString *> *buttons = [RCTConvert NSStringArray:options[@"options"]];
+    
+    NSArray<NSDictionary *> *icons = [RCTConvert NSDictionaryArray:options[@"icons"]];
+    BOOL tintIcons = options[@"tintIcons"] ? [RCTConvert BOOL:options[@"tintIcons"]] : YES;
+    
+    NDActionTextAlignment textAlign = options[@"textAlign"] ? [RCTConvert NDActionTextAlignment:options[@"textAlign"]] : NDActionTextAlignmentCenter;
+    
     NSInteger destructiveButtonIndex = options[@"destructiveButtonIndex"] ? [RCTConvert NSInteger:options[@"destructiveButtonIndex"]] : -1;
-    NSInteger cancelButtonIndex = options[@"cancelButtonIndex"] ? [RCTConvert NSInteger:options[@"cancelButtonIndex"]] : -1;
+    
     NSInteger selectedIndex = options[@"selectedIndex"] ? [RCTConvert NSInteger:options[@"selectedIndex"]] : -1;
     
     
@@ -90,18 +100,13 @@ RCT_EXPORT_METHOD(showActionSheetWithOptions:(NSDictionary *)options
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleActionSheet];
     
     NSInteger index = 0;
-    for (NSDictionary *option in buttons) {
+    for (NSString *option in buttons) {
         
-        NSString* buttonTitle = [option valueForKey:@"title"];
+        NSString* buttonTitle = option;
         
         UIAlertActionStyle style = UIAlertActionStyleDefault;
         if (index == destructiveButtonIndex) {
             style = UIAlertActionStyleDestructive;
-        } else if (index == cancelButtonIndex) {
-            style = UIAlertActionStyleCancel;
-            if (!buttonTitle) {
-                buttonTitle = RCTUIKitLocalizedString(@"Cancel");
-            }
         }
         
         NSInteger localIndex = index;
@@ -110,15 +115,17 @@ RCT_EXPORT_METHOD(showActionSheetWithOptions:(NSDictionary *)options
             callback(@[@(localIndex)]);
         }];
         
-        if ([option objectForKey:@"icon"]) {
-            UIImage *icon = [RCTConvert UIImage:[option objectForKey:@"icon"]];
-            [action setValue:icon forKey:@"image"];
+        if (index < icons.count) {
+            UIImage *iconImage = [self iconImageFromDictionary:icons[index]];
+            if (iconImage) {
+              if (!tintIcons) {
+                iconImage = [iconImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+              }
+              [action setValue:iconImage forKey:@"image"];
+            }
         }
         
-        if ([option objectForKey:@"titleTextAlignment"]) {
-            NSNumber *titleTextAlignment = @([RCTConvert NDActionTextAlignment:[option valueForKey:@"titleTextAlignment"]]);
-            [action setValue:titleTextAlignment forKey:@"titleTextAlignment"];
-        }
+        [action setValue:@(textAlign) forKey:@"titleTextAlignment"];
         
         if (localIndex == selectedIndex) {
             [action setValue:@true forKey:@"checked"];
@@ -127,6 +134,19 @@ RCT_EXPORT_METHOD(showActionSheetWithOptions:(NSDictionary *)options
         [alertController addAction:action];
         
         index++;
+    }
+    
+    if (cancelable) {
+        NSString* buttonTitle = cancelText;
+        if (!buttonTitle) {
+            buttonTitle = RCTUIKitLocalizedString(@"Cancel");
+        }
+        UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:buttonTitle style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            callback(@[]);
+        }];
+        [cancelAction setValue:@(textAlign) forKey:@"titleTextAlignment"];
+        
+        [alertController addAction:cancelAction];
     }
     
     alertController.modalPresentationStyle = UIModalPresentationPopover;
@@ -138,6 +158,23 @@ RCT_EXPORT_METHOD(showActionSheetWithOptions:(NSDictionary *)options
     [controller presentViewController:alertController animated:YES completion:nil];
     
     alertController.view.tintColor = [RCTConvert UIColor:options[@"tintColor"]];
+}
+
+- (nullable UIImage *)iconImageFromDictionary:(NSDictionary *)dictionary
+{
+  NSString *iconURLString = dictionary[@"uri"];
+  if (!iconURLString) {
+    return nil;
+  }
+  NSURL *iconURL = [NSURL URLWithString:iconURLString];
+  if (!iconURL) {
+    return nil;
+  }
+  NSData *iconData = [NSData dataWithContentsOfURL:iconURL];
+  if (!iconData) {
+    return nil;
+  }
+  return [UIImage imageWithData:iconData];
 }
 
 @end
